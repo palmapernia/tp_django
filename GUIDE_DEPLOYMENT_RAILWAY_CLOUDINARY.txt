@@ -1,0 +1,341 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    GUIDE COMPLET DE DÉPLOIEMENT SUR RAILWAY + CLOUDINARY
+                            Projet Django TP - Blog + Polls + Auth
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 SOMMAIRE :
+1. Préparation pour la production
+2. Configuration de Railway (MySQL)
+3. Configuration de Cloudinary (Stockage d'images)
+4. Déploiement et résolution des problèmes
+5. Fichiers créés et modifiés
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🏗️ 1. PRÉPARATION POUR LA PRODUCTION
+═══════════════════════════════════════════════════════════════════════════════
+
+1.1. Installation des packages de production :
+   poetry add gunicorn
+   poetry add whitenoise
+   poetry add mysqlclient
+   poetry add dj-database-url
+
+1.2. Configuration dans settings.py pour la production :
+
+   📁 Fichier : tp_django/settings.py
+   
+   🔸 ÉTAPE 1 : Ajouter les imports en haut du fichier (après les imports existants)
+   import os
+   import dj_database_url
+
+   🔸 ÉTAPE 2 : Remplacer les lignes de sécurité existantes par :
+   # Sécurité (remplacer SECRET_KEY et DEBUG existants)
+   SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback')
+   DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+   ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else []
+
+   🔸 ÉTAPE 3 : Ajouter après ALLOWED_HOSTS :
+   # Configuration CSRF pour Railway
+   CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else [
+       'http://127.0.0.1:8000', 
+       'http://localhost:8000'
+   ]
+
+   🔸 ÉTAPE 4 : Remplacer complètement la section DATABASES par :
+   # Base de données MySQL avec Railway
+   if os.environ.get('MYSQL_URL'):
+       DATABASES = {
+           'default': dj_database_url.parse(os.environ.get('MYSQL_URL'))
+       }
+   else:
+       # Configuration développement local
+       DATABASES = {
+           'default': {
+               'ENGINE': 'django.db.backends.mysql',
+               'NAME': os.environ.get('MYSQLDATABASE', 'tp_django_db'),
+               'USER': os.environ.get('MYSQLUSER', 'root'),
+               'PASSWORD': os.environ.get('MYSQLPASSWORD', 'root'),
+               'HOST': os.environ.get('MYSQLHOST', 'mysql'),
+               'PORT': os.environ.get('MYSQLPORT', '3306'),
+           }
+       }
+
+   🔸 ÉTAPE 5 : Dans la liste MIDDLEWARE, ajouter après SecurityMiddleware :
+   MIDDLEWARE = [
+       'django.middleware.security.SecurityMiddleware',
+       'whitenoise.middleware.WhiteNoiseMiddleware',  # ← AJOUTER cette ligne
+       # ... garder les autres middlewares existants
+   ]
+
+   🔸 ÉTAPE 6 : Modifier la section des fichiers statiques :
+   # Trouver STATIC_ROOT et le remplacer/ajouter :
+   STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+   
+   # Ajouter cette condition :
+   if not DEBUG:
+       STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+   else:
+       STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+1.3. Configuration pour le développement local avec Cloudinary :
+
+   🔸 ÉTAPE 1 : Installer python-dotenv pour les variables d'environnement locales
+   📍 Terminal :
+   poetry add python-dotenv
+
+   🔸 ÉTAPE 2 : Créer fichier .env (à la racine du projet Django)
+   📁 Emplacement : /workspace/projets/tp_django/.env
+   CLOUDINARY_CLOUD_NAME=dnlraecua
+   CLOUDINARY_API_KEY=635285162275731
+   CLOUDINARY_API_SECRET=qhOM0uYjiEfCFRuNWwAB1-9a9d4
+   DEBUG=True
+   SECRET_KEY=django-insecure-local-key-for-development
+
+   🔸 ÉTAPE 3 : Modifier settings.py pour charger le fichier .env
+   📁 Fichier : tp_django/settings.py
+   📍 Ajouter au début (après from pathlib import Path) :
+   from dotenv import load_dotenv  # ← AJOUTER
+   
+   # Charger variables de .env
+   load_dotenv()  # ← AJOUTER
+
+   🔸 ÉTAPE 4 : Créer/modifier .gitignore
+   📁 Emplacement : /workspace/projets/tp_django/.gitignore
+   📍 Ajouter :
+   .env
+
+1.4. Création des fichiers de déploiement :
+
+   🔸 CRÉER : requirements.txt (à la racine du projet Django)
+   📁 Emplacement : /workspace/projets/tp_django/requirements.txt
+   Django==5.2.8
+   djangorestframework==3.15.2
+   djangorestframework-simplejwt==5.3.1
+   drf-spectacular==0.27.2
+   django-debug-toolbar==4.4.6
+   gunicorn==21.2.0
+   whitenoise==6.8.2
+   mysqlclient==2.2.6
+   coverage==7.6.10
+   Pillow==11.0.0
+   dj-database-url==2.1.0
+   django-cloudinary-storage==0.3.0
+   cloudinary==1.36.0
+   python-dotenv==1.0.1
+
+   🔸 CRÉER : runtime.txt (à la racine du projet Django)
+   📁 Emplacement : /workspace/projets/tp_django/runtime.txt
+   python-3.13
+
+   🔸 CRÉER : Procfile (à la racine du projet Django, SANS extension)
+   📁 Emplacement : /workspace/projets/tp_django/Procfile
+   web: python manage.py collectstatic --noinput && gunicorn tp_django.wsgi
+
+   ⚠️ IMPORTANT : Après avoir créé le .env, redémarrer le serveur local :
+   📍 Terminal :
+   python manage.py runserver
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚂 2. CONFIGURATION DE RAILWAY (MySQL)
+═══════════════════════════════════════════════════════════════════════════════
+
+2.1. Étapes sur Railway.app :
+   ✅ Créer un nouveau projet
+   ✅ Connecter le repository GitHub
+   ✅ Ajouter un service MySQL Database
+   ✅ Attendre que MySQL soit provisionné
+
+2.2. Variables d'environnement à configurer sur Railway :
+   DEBUG=False
+   SECRET_KEY=your-secret-key-here
+   ALLOWED_HOSTS=tpdjango-production.up.railway.app
+   CSRF_TRUSTED_ORIGINS=https://tpdjango-production.up.railway.app
+   
+   # Variables MySQL (automatiques via Railway) :
+   MYSQL_URL=mysql://user:password@host:port/database
+   MYSQLDATABASE=railway
+   MYSQLUSER=root
+   MYSQLPASSWORD=generated-password
+   MYSQLHOST=containers-us-west-xxx.railway.app
+   MYSQLPORT=6543
+
+2.3. Configuration du domaine :
+   ✅ Domaine généré : tpdjango-production.up.railway.app
+   ✅ HTTPS automatique avec certificat SSL
+
+═══════════════════════════════════════════════════════════════════════════════
+
+☁️ 3. CONFIGURATION DE CLOUDINARY (STOCKAGE D'IMAGES)
+═══════════════════════════════════════════════════════════════════════════════
+
+3.1. Création du compte Cloudinary :
+   ✅ Inscription sur cloudinary.com
+   ✅ Récupération des identifiants API
+
+3.2. Installation des packages :
+   poetry add django-cloudinary-storage
+   poetry add cloudinary
+
+3.3. Configuration dans settings.py :
+
+   📁 Fichier : tp_django/settings.py
+   
+   🔸 ÉTAPE 1 : Ajouter les imports Cloudinary (après les imports existants)
+   import cloudinary
+   import cloudinary.uploader
+   import cloudinary.api
+
+   🔸 ÉTAPE 2 : Modifier l'ordre dans INSTALLED_APPS (TRÈS IMPORTANT)
+   INSTALLED_APPS = [
+       'django.contrib.staticfiles',  # ← DOIT être en PREMIER pour les fichiers statiques
+       'cloudinary_storage',          # ← Pour les médias seulement
+       'cloudinary',                  # ← Après cloudinary_storage
+       # ... garder toutes les autres apps existantes
+   ]
+
+   🔸 ÉTAPE 3 : Ajouter la configuration Cloudinary (à la fin du fichier, avant DEFAULT_AUTO_FIELD)
+   # Configuration Cloudinary
+   cloudinary.config(
+       cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+       api_key=os.environ.get('CLOUDINARY_API_KEY'),
+       api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+       secure=True
+   )
+
+   CLOUDINARY_STORAGE = {
+       'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+       'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+       'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+   }
+
+   🔸 ÉTAPE 4 : Ajouter la configuration de stockage pour production
+   # Utiliser Cloudinary en production pour les médias uniquement
+   if not DEBUG:
+       DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+3.4. Variables d'environnement Cloudinary sur Railway :
+   CLOUDINARY_CLOUD_NAME=dnlraecua
+   CLOUDINARY_API_KEY=635285162275731
+   CLOUDINARY_API_SECRET=qhOM0uYjiEfCFRuNWwAB1-9a9d4
+
+3.5. 🔥 MODIFICATION CRUCIALE DU MODÈLE Article :
+
+   📁 Fichier : blog/models.py
+   
+   🔸 ÉTAPE 1 : Ajouter l'import Cloudinary (en haut du fichier)
+   from django.db import models
+   from django.contrib.auth.models import User
+   from cloudinary.models import CloudinaryField  # ← AJOUTER cette ligne
+
+   🔸 ÉTAPE 2 : Remplacer le champ image dans la classe Article
+   AVANT (stockage local) :
+   image = models.ImageField(upload_to='articles/', blank=True, null=True)
+
+   APRÈS (Cloudinary) :
+   image = CloudinaryField('image', folder='articles', blank=True, null=True)
+
+   🔸 ÉTAPE 3 : Créer et appliquer la migration
+   📍 Dans le terminal, exécuter :
+   python manage.py makemigrations
+   python manage.py migrate
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 4. DÉPLOIEMENT ET RÉSOLUTION DES PROBLÈMES
+═══════════════════════════════════════════════════════════════════════════════
+
+
+4.1. Problèmes rencontrés et solutions :
+
+   🐛 Problème : Fichiers CSS avec MIME type 'text/html'
+   ✅ Solution : Corriger l'ordre dans INSTALLED_APPS et Procfile
+   
+   🐛 Problème : Cloudinary interfère avec collectstatic
+   ✅ Solution : Mettre 'django.contrib.staticfiles' AVANT 'cloudinary_storage'
+   
+   🐛 Problème : Images stockées localement au lieu de Cloudinary
+   ✅ Solution : Changer ImageField vers CloudinaryField dans models.py
+
+4.2. Configuration finale STATICFILES_DIRS :
+   
+   📁 Fichier : tp_django/settings.py
+   
+   🔸 Trouver STATICFILES_DIRS et le modifier/remplacer par :
+   STATICFILES_DIRS = [
+       BASE_DIR / 'static',                  # Dossier principal
+       BASE_DIR / 'tp_django' / 'static',    # Dossier de sauvegarde
+   ]
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+4.3. Ajout du favicon :
+   
+   🔸 ÉTAPE 1 : Créer les fichiers favicon
+   📍 Créer dans : static/favicon.ico et static/favicon.svg
+   
+   🔸 ÉTAPE 2 : Ajouter dans base.html
+   📁 Fichier : tp_django/templates/base.html
+   📍 Ajouter après <title> et avant les autres <link> :
+   
+   <!-- Favicons -->
+   {% load static %}
+   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+   <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 5. FICHIERS CRÉÉS ET MODIFIÉS - RÉCAPITULATIF COMPLET
+═══════════════════════════════════════════════════════════════════════════════
+
+5.1. 📄 Fichiers de déploiement créés :
+   ├── requirements.txt (dépendances Python + python-dotenv)
+   ├── runtime.txt (version Python 3.13)
+   ├── Procfile (commandes Railway)
+   ├── .env (variables d'environnement locales)
+   ├── .gitignore (exclure .env du git)
+   └── README.md (documentation projet)
+
+5.2. 🔧 Fichiers de configuration modifiés :
+   ├── tp_django/settings.py (production + Cloudinary)
+   └── blog/models.py (CloudinaryField)
+
+5.3. 🎨 Assets statiques créés :
+   ├── static/favicon.ico (icône navigateur)
+   ├── static/favicon.svg (version vectorielle)
+   ├── static/blog/style.css (styles blog)
+   ├── static/accounts/style.css (styles authentification)
+   └── static/polls/style.css (styles sondages)
+
+
+✅ RÉSULTAT FINAL
+═══════════════════════════════════════════════════════════════════════════════
+
+🌐 Application déployée sur : https://tpdjango-production.up.railway.app
+
+🏆 Fonctionnalités opérationnelles :
+   ✅ Blog avec articles et commentaires
+   ✅ Système de sondages interactifs  
+   ✅ Authentification complète (login/signup/dashboard)
+   ✅ API REST avec JWT et documentation Swagger
+   ✅ Base de données MySQL sur Railway
+   ✅ Stockage d'images persistant avec Cloudinary
+   ✅ Interface responsive (mobile/tablet/desktop)
+   ✅ Favicon personnalisé
+   ✅ HTTPS et domaine sécurisé
+   ✅ Tests avec couverture 100%
+
+🎯 Technologies utilisées :
+   - Django 5.2.8 + DRF + JWT
+   - MySQL (Railway)
+   - Cloudinary (stockage images)
+   - Bootstrap 5.3.6 (responsive)
+   - Gunicorn + WhiteNoise (production)
+   - Railway (hébergement)
+
+═══════════════════════════════════════════════════════════════════════════════
+                                    FIN DU GUIDE
+                              Créé le 2 décembre 2025
+═══════════════════════════════════════════════════════════════════════════════
