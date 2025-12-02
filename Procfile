@@ -1,2 +1,2 @@
 web: gunicorn tp_django.wsgi
-release: python manage.py collectstatic --noinput && python manage.py migrate
+web: python manage.py collectstatic --noinput && gunicorn tp_django.wsgi
