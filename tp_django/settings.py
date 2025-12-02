@@ -152,7 +152,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'tp_django' / 'static',
+    BASE_DIR / 'static',  # Buscar en la raíz del proyecto
+    BASE_DIR / 'tp_django' / 'static',  # También en tp_django/static como backup
 ]
 
 # Para producción
