@@ -7,12 +7,12 @@
 
 {% block content %}
     <!-- En-tête avec accueil personnalisé -->
-    <div class="jumbotron bg-gradient bg-primary text-white rounded mb-4 p-4">
-        <div class="container-fluid">
-            <h1 class="display-4">
+    <div class="jumbotron bg-gradient bg-primary text-white rounded mb-4 p-3 p-md-4">
+        <div class="container-fluid text-center text-md-start">
+            <h1 class="display-6 display-md-4">
                 <i class="fas fa-blog"></i> Blog Articles
             </h1>
-            <p class="lead">
+            <p class="lead fs-6 fs-md-5">
                 {% if user.is_authenticated %}
                     Bienvenue <strong>{{ request.user.username }}</strong> ! Découvrez les derniers articles.
                 {% else %}
@@ -24,8 +24,8 @@
 
     <!-- Bouton de création d'article -->
     {% if user.is_authenticated %}
-        <div class="d-flex justify-content-end mb-4">
-            <a href="{% url 'blog:post_article' %}" class="btn btn-success btn-lg">
+        <div class="d-flex justify-content-center justify-content-md-end mb-4">
+            <a href="{% url 'blog:post_article' %}" class="btn btn-success btn-lg w-100 w-md-auto">
                 <i class="fas fa-plus"></i> Créer un article
             </a>
         </div>
@@ -33,9 +33,9 @@
 
     <!-- Liste des articles -->
     {% if articles %}
-        <div class="row g-4">
+        <div class="row g-3 g-md-4">
         {% for article in articles %}
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-12 col-sm-6 col-lg-4 mb-3 mb-md-4">
                 <div class="card h-100 shadow border-light" style="border-radius: 15px; overflow: hidden;">
                     {% if article.image %}
                         <div class="position-relative">
