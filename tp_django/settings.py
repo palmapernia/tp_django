@@ -40,7 +40,8 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if 
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage',  # ← AGREGAR como primera línea
+    'cloudinary_storage',  # Must be first for media files
+    'django.contrib.staticfiles',
     'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -54,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 ]
 
 MIDDLEWARE = [
@@ -211,3 +211,5 @@ cloudinary.config(
 # Use Cloudinary for media files in production
 if not DEBUG:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Ensure STATIC_ROOT exists
+    os.makedirs(STATIC_ROOT, exist_ok=True)
