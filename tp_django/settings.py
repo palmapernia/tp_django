@@ -194,17 +194,17 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Cloudinary configuration
-cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
-)
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
+# Se puede usar directamente la URL completa de Cloudinary
+if os.environ.get('CLOUDINARY_URL'):
+    # Railway usará directamente CLOUDINARY_URL
+    pass
+else:
+    # Configuración alternativa para desarrollo local si se prefiere
+    cloudinary.config(
+        cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key=os.environ.get('CLOUDINARY_API_KEY'), 
+        api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+    )
 
 # Use Cloudinary for media files in production
 if not DEBUG:
