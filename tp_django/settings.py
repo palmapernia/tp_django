@@ -40,8 +40,8 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if 
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage',  # Must be first for media files
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles',  # Put this first for static files
+    'cloudinary_storage',  # Only for media files
     'cloudinary',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -160,9 +160,11 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Use WhiteNoise for static files in production
-# Temporarily disabled for debugging
-# if not DEBUG:
-#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    # Para desarrollo local
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
