@@ -95,10 +95,13 @@
    🔸 ÉTAPE 3 : Modifier settings.py pour charger le fichier .env
    📁 Fichier : tp_django/settings.py
    📍 Ajouter au début (après from pathlib import Path) :
-   from dotenv import load_dotenv  # ← AJOUTER
    
-   # Charger variables de .env
-   load_dotenv()  # ← AJOUTER
+   # Cargar variables de entorno desde .env (solo en desarrollo)
+   try:
+       from dotenv import load_dotenv
+       load_dotenv()
+   except ImportError:
+       pass  # En producción no necesita dotenv
 
    🔸 ÉTAPE 4 : Créer/modifier .gitignore
    📁 Emplacement : /workspace/projets/tp_django/.gitignore
