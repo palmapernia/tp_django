@@ -84,16 +84,26 @@ WSGI_APPLICATION = 'tp_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQLDATABASE', 'tp_django_db'),
-        'USER': os.environ.get('MYSQLUSER', 'root'),
-        'PASSWORD': os.environ.get('MYSQLPASSWORD', 'root'),
-        'HOST': os.environ.get('MYSQLHOST', 'mysql'),
-        'PORT': os.environ.get('MYSQLPORT', '3306'),
+import dj_database_url
+
+# Database configuration
+if os.environ.get('MYSQL_URL'):
+    # Usar URL de Railway
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('MYSQL_URL'))
     }
-}
+else:
+    # Configuración para desarrollo local
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQLDATABASE', 'tp_django_db'),
+            'USER': os.environ.get('MYSQLUSER', 'root'),
+            'PASSWORD': os.environ.get('MYSQLPASSWORD', 'root'),
+            'HOST': os.environ.get('MYSQLHOST', 'mysql'),
+            'PORT': os.environ.get('MYSQLPORT', '3306'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

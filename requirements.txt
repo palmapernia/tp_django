@@ -8,3 +8,4 @@ whitenoise==6.8.2
 mysqlclient==2.2.6
 coverage==7.6.10
 Pillow==11.0.0
+dj-database-url==2.1.0
