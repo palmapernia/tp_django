@@ -16,6 +16,9 @@ djangorestframework-simplejwt = "^5.5.1"
 drf-spectacular = "^0.29.0"
 gunicorn = "^23.0.0"
 whitenoise = "^6.11.0"
+dj-database-url = "^3.0.1"
+django-cloudinary-storage = "^0.3.0"
+cloudinary = "^1.44.1"
 
 
 [tool.poetry.group.dev.dependencies]
