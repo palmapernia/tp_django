@@ -28,13 +28,10 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else []
 
 # Configuración CSRF para producción
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.up.railway.app',
-        'https://tpdjango-production.up.railway.app',
-    ]
-else:
-    CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else [
+    'http://127.0.0.1:8000', 
+    'http://localhost:8000'
+]
 
 
 # Application definition
