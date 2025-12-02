@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un sondage - Polls{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Créer un nouveau sondage
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="poll-form">
+                        {% csrf_token %}
+                        
+                        <!-- Question -->
+                        <div class="mb-4">
+                            <label for="{{ question_form.question_text.id_for_label }}" class="form-label fw-bold">
+                                Question du sondage
+                            </label>
+                            {{ question_form.question_text }}
+                            {% if question_form.question_text.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in question_form.question_text.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Statut actif -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ question_form.is_active }}
+                                <label class="form-check-label" for="{{ question_form.is_active.id_for_label }}">
+                                    Sondage actif (les utilisateurs peuvent voter)
+                                </label>
+                            </div>
+                            {% if question_form.is_active.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in question_form.is_active.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Choix de réponse -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                Choix de réponse <small class="text-muted">(minimum 2 requis)</small>
+                            </label>
+                            <div id="choices-container">
+                                <div class="choice-input mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </span>
+                                        <input type="text" name="choice_text" class="form-control" 
+                                               placeholder="Premier choix..." required>
+                                    </div>
+                                </div>
+                                <div class="choice-input mb-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </span>
+                                        <input type="text" name="choice_text" class="form-control" 
+                                               placeholder="Deuxième choix..." required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-choice">
+                                <i class="fas fa-plus me-1"></i>Ajouter un choix
+                            </button>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'polls:index' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Créer le sondage
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addChoiceBtn = document.getElementById('add-choice');
+    const choicesContainer = document.getElementById('choices-container');
+    let choiceCount = 2;
+
+    addChoiceBtn.addEventListener('click', function() {
+        choiceCount++;
+        const choiceDiv = document.createElement('div');
+        choiceDiv.className = 'choice-input mb-2';
+        choiceDiv.innerHTML = `
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-check-circle text-success"></i>
+                </span>
+                <input type="text" name="choice_text" class="form-control" 
+                       placeholder="Choix ${choiceCount}...">
+                <button type="button" class="btn btn-outline-danger remove-choice">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        choicesContainer.appendChild(choiceDiv);
+
+        // Ajouter l'événement de suppression
+        choiceDiv.querySelector('.remove-choice').addEventListener('click', function() {
+            choiceDiv.remove();
+        });
+    });
+
+    // Gestion de la suppression des choix existants
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-choice') || 
+            e.target.parentElement.classList.contains('remove-choice')) {
+            const choiceDiv = e.target.closest('.choice-input');
+            if (choicesContainer.children.length > 2) {
+                choiceDiv.remove();
+            } else {
+                alert('Un sondage doit avoir au minimum 2 choix.');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

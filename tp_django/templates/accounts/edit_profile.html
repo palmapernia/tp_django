@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier le profil - TP Django{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-header bg-warning text-white text-center py-4" style="border-radius: 20px 20px 0 0;">
+                    <div class="mb-3">
+                        <i class="fas fa-user-edit fa-3x mb-3"></i>
+                    </div>
+                    <h2 class="mb-0 fw-bold">Modifier le profil</h2>
+                    <p class="mb-0 opacity-75">Mettez à jour vos informations personnelles</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <!-- Messages de succès/erreur -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} d-flex align-items-center mb-4" role="alert">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- First Name field -->
+                        <div class="mb-4">
+                            <label for="first_name" class="form-label fw-semibold">
+                                <i class="fas fa-user text-warning me-2"></i>Prénom
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name }}" placeholder="Votre prénom">
+                            </div>
+                        </div>
+                        
+                        <!-- Last Name field -->
+                        <div class="mb-4">
+                            <label for="last_name" class="form-label fw-semibold">
+                                <i class="fas fa-user text-warning me-2"></i>Nom de famille
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-user text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name }}" placeholder="Votre nom de famille">
+                            </div>
+                        </div>
+                        
+                        <!-- Username field -->
+                        <div class="mb-4">
+                            <label for="username" class="form-label fw-semibold">
+                                <i class="fas fa-at text-warning me-2"></i>Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-at text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       value="{{ user.username }}" placeholder="Votre nom d'utilisateur" required>
+                            </div>
+                            <small class="text-muted">Lettres, chiffres et @/./+/-/_ uniquement.</small>
+                        </div>
+                        
+                        <!-- Email field -->
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope text-warning me-2"></i>Adresse email
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-envelope text-muted"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ user.email }}" placeholder="votre@email.com">
+                            </div>
+                        </div>
+                        
+                        <!-- Password section (optional) -->
+                        <div class="border-top pt-4 mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="fas fa-lock me-2"></i>Changer le mot de passe (optionnel)
+                            </h5>
+                            <small class="text-muted d-block mb-3">
+                                Laissez ces champs vides si vous ne souhaitez pas changer votre mot de passe.
+                            </small>
+                            
+                            <!-- New Password field -->
+                            <div class="mb-4">
+                                <label for="new_password" class="form-label fw-semibold">
+                                    <i class="fas fa-key text-warning me-2"></i>Nouveau mot de passe
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-key text-muted"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="new_password" name="new_password" 
+                                           placeholder="Nouveau mot de passe (optionnel)">
+                                </div>
+                                <small class="text-muted">Minimum 8 caractères si vous souhaitez le changer.</small>
+                            </div>
+                            
+                            <!-- Confirm Password field -->
+                            <div class="mb-4">
+                                <label for="confirm_password" class="form-label fw-semibold">
+                                    <i class="fas fa-key text-warning me-2"></i>Confirmer le nouveau mot de passe
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-key text-muted"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                           placeholder="Confirmer le nouveau mot de passe">
+                                </div>
+                                <small class="text-muted">Répétez le même mot de passe que ci-dessus.</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit buttons -->
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="submit" class="btn btn-warning btn-lg py-3 fw-semibold" style="border-radius: 15px;">
+                                <i class="fas fa-save me-2"></i>
+                                Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Links -->
+                    <div class="text-center">
+                        <div class="border-top pt-4">
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary px-4" style="border-radius: 25px;">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Retour au dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 15px;
+    font-size: 16px;
+}
+
+.input-group-text {
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+    padding: 12px 15px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    border-color: #ffdf7e;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %}

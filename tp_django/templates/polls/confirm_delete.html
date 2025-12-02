@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmer la suppression - Polls{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-warning me-2"></i>
+                        Cette action est <strong>irréversible</strong>.
+                    </div>
+                    
+                    <p class="mb-4">
+                        Êtes-vous sûr de vouloir supprimer ce sondage ?
+                    </p>
+                    
+                    <div class="bg-light p-3 rounded mb-4">
+                        <h6 class="fw-bold">{{ question.question_text }}</h6>
+                        <small class="text-muted">
+                            Publié le {{ question.pub_date|date:"d/m/Y à H:i" }}
+                        </small>
+                        {% if question.choice_set.all %}
+                        <div class="mt-2">
+                            <small class="text-muted">Choix disponibles :</small>
+                            <ul class="list-unstyled mb-0 mt-1">
+                                {% for choice in question.choice_set.all %}
+                                <li class="small">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    {{ choice.choice_text }}
+                                    {% if choice.votes > 0 %}
+                                    <span class="text-muted">({{ choice.votes }} vote{{ choice.votes|pluralize }})</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" class="d-flex justify-content-between">
+                        {% csrf_token %}
+                        <a href="{% url 'polls:detail' question.pk %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Supprimer définitivement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

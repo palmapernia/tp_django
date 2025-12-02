@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-edit"></i> Modifier l'article
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Aperçu de l'article actuel -->
+                    <div class="alert alert-info" role="alert">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle fa-lg"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="alert-heading mb-2">Article en cours de modification</h6>
+                                <p class="mb-1"><strong>{{ article.title }}</strong></p>
+                                <small class="text-muted">
+                                    Créé le {{ article.created_at|date:"d M Y à H:i" }} par {{ article.author }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire de modification -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-heading text-primary me-2"></i>Titre de l'article
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.content.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-file-text text-primary me-2"></i>Contenu
+                            </label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.content.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb text-warning me-1"></i>
+                                Utilisez des paragraphes pour structurer votre contenu.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">
+                                <i class="fas fa-image text-primary me-2"></i>Image (optionnelle)
+                            </label>
+                            
+                            <!-- Affichage de l'image actuelle si elle existe -->
+                            {% if article.image %}
+                                <div class="mb-3 p-3 bg-light rounded">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <img src="{{ article.image.url }}" alt="{{ article.title }}" 
+                                                 class="img-thumbnail" style="max-width: 120px; max-height: 80px; object-fit: cover;">
+                                        </div>
+                                        <div class="col">
+                                            <h6 class="mb-1 text-success">
+                                                <i class="fas fa-check-circle me-1"></i>Image actuelle
+                                            </h6>
+                                            <small class="text-muted">
+                                                Sélectionnez une nouvelle image pour la remplacer
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="mb-3 p-3 bg-light rounded text-center">
+                                    <i class="fas fa-image fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">Aucune image actuellement</p>
+                                </div>
+                            {% endif %}
+                            
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.image.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info me-1"></i>
+                                Formats acceptés: JPG, PNG, GIF (max 5MB recommandé)
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-md-center">
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'blog:article_detail' article.id %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Retour à l'article
+                                </a>
+                                <a href="{% url 'blog:home' %}" class="btn btn-outline-dark">
+                                    <i class="fas fa-home me-1"></i>Accueil
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-outline-warning">
+                                    <i class="fas fa-undo me-1"></i>Réinitialiser
+                                </button>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-save me-1"></i>Sauvegarder les modifications
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Footer avec informations -->
+                <div class="card-footer bg-light text-muted">
+                    <small>
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Seul l'auteur de l'article peut le modifier. 
+                        Les modifications sont sauvegardées immédiatement.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation (optionnel) -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title text-dark" id="confirmModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmer les modifications
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir sauvegarder ces modifications ?</p>
+                    <small class="text-muted">Cette action ne peut pas être annulée.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Article original -->
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-info text-white">
+                    <h2 class="card-title mb-0"><i class="fas fa-newspaper"></i> {{ article.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> <strong>{{ article.author }}</strong> • 
+                            <i class="fas fa-calendar"></i> {{ article.created_at }}
+                        </small>
+                    </div>
+                    {% if article.image %}
+                        <div class="text-center mb-3">
+                            <img src="{{ article.image.url }}" class="img-fluid rounded" style="max-height: 300px;" alt="{{ article.title }}">
+                        </div>
+                    {% endif %}
+                    <div class="article-content">
+                        {{ article.content|linebreaks }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Formulaire de commentaire -->
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-comment"></i> Ajouter un commentaire</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label fw-bold">Votre commentaire</label>
+                            {{ form.content }}
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'blog:home' %}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane"></i> Envoyer le commentaire
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% block head %}
+ <link rel="stylesheet" href="{% static 'blog/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- En-tête avec accueil personnalisé -->
+    <div class="jumbotron bg-gradient bg-primary text-white rounded mb-4 p-4">
+        <div class="container-fluid">
+            <h1 class="display-4">
+                <i class="fas fa-blog"></i> Blog Articles
+            </h1>
+            <p class="lead">
+                {% if user.is_authenticated %}
+                    Bienvenue <strong>{{ request.user.username }}</strong> ! Découvrez les derniers articles.
+                {% else %}
+                    Découvrez nos articles. <a href="{% url 'accounts:login' %}" class="text-warning">Connectez-vous</a> pour participer.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Bouton de création d'article -->
+    {% if user.is_authenticated %}
+        <div class="d-flex justify-content-end mb-4">
+            <a href="{% url 'blog:post_article' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus"></i> Créer un article
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Liste des articles -->
+    {% if articles %}
+        <div class="row g-4">
+        {% for article in articles %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow border-light" style="border-radius: 15px; overflow: hidden;">
+                    {% if article.image %}
+                        <div class="position-relative">
+                            <img src="{{ article.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ article.title }}">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-primary bg-opacity-75">
+                                    <i class="fas fa-image"></i>
+                                </span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card-img-top bg-gradient bg-secondary d-flex align-items-center justify-content-center" style="height: 220px;">
+                            <div class="text-center text-white">
+                                <i class="fas fa-file-alt fa-3x mb-2 opacity-50"></i>
+                                <p class="mb-0 small opacity-75">Sans image</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="mb-3">
+                            <h5 class="card-title text-primary fw-bold mb-2" style="line-height: 1.3;">
+                                {{ article.title }}
+                            </h5>
+                            <p class="card-text text-muted flex-grow-1" style="font-size: 0.95rem; line-height: 1.5;">
+                                {{ article.content|truncatewords:25 }}
+                            </p>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                        <i class="fas fa-user text-white" style="font-size: 0.8rem;"></i>
+                                    </div>
+                                    <div>
+                                        <small class="fw-semibold text-dark d-block" style="font-size: 0.85rem;">{{ article.author }}</small>
+                                        <small class="text-muted" style="font-size: 0.75rem;">
+                                            <i class="fas fa-calendar-alt me-1"></i>{{ article.created_at|date:"d M Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'blog:article_detail' article.id %}" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" style="font-weight: 500; flex: 2;">
+                                    <i class="fas fa-eye me-1"></i>Lire l'article
+                                </a>
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'blog:post_comment' article.id %}" class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center" style="flex: 1;">
+                                        <i class="fas fa-comment me-1"></i>Commenter
+                                    </a>
+                                    {% if article.author == user %}
+                                        <a href="{% url 'blog:edit_article' article.id %}" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="flex: 1;">
+                                            <i class="fas fa-edit me-1"></i>Modifier
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
+                        {% if not user.is_authenticated %}
+                            <small class="text-muted d-block text-center">
+                                <i class="fas fa-lock me-1"></i>Connectez-vous pour commenter
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center mt-5">
+            <div class="card border-0">
+                <div class="card-body">
+                    <i class="fas fa-file-alt fa-5x text-muted mb-3"></i>
+                    <h3 class="text-muted">Aucun article pour le moment</h3>
+                    <p class="text-muted">Soyez le premier à partager vos idées !</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'blog:post_article' %}" class="btn btn-primary btn-lg mt-3">
+                            <i class="fas fa-plus"></i> Créer le premier article
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
