@@ -12,7 +12,7 @@ def create_admin_user(apps, schema_editor):
         admin_user = User.objects.create_user(
             username='admin',
             email='admin@example.com',
-            password='Fuengirola1',
+            password='Fuengirola1.',
             first_name='Administrateur',
             last_name='Système'
         )

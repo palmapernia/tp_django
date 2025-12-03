@@ -42,6 +42,20 @@ class PageViewMiddleware(MiddlewareMixin):
             
         # Crear registro de visita
         try:
+            # Actualizar estadísticas diarias
+            today = timezone.now().date()
+            daily_visits, created = DailyVisits.objects.get_or_create(
+                date=today,
+                defaults={'total_visits': 0, 'unique_visitors': 0}
+            )
+            
+            # Verificar si es un visitante único ANTES de crear el registro
+            is_unique_visitor = not PageView.objects.filter(
+                ip_address=ip_address,
+                timestamp__date=today
+            ).exists()
+            
+            # Crear el registro de visita
             PageView.objects.create(
                 url=url,
                 user=user,
@@ -50,27 +64,10 @@ class PageViewMiddleware(MiddlewareMixin):
                 session_key=session_key
             )
             
-            # Actualizar estadísticas diarias
-            today = timezone.now().date()
-            daily_visits, created = DailyVisits.objects.get_or_create(
-                date=today,
-                defaults={'total_visits': 0, 'unique_visitors': 0}
-            )
-            
-            # Incrementar visitas totales
+            # Incrementar contadores
             daily_visits.total_visits = F('total_visits') + 1
             
-            # Verificar si es un visitante único (por IP y fecha)
-            if not PageView.objects.filter(
-                ip_address=ip_address,
-                timestamp__date=today
-            ).exclude(pk=PageView.objects.filter(
-                ip_address=ip_address,
-                timestamp__date=today
-            ).last().pk if PageView.objects.filter(
-                ip_address=ip_address,
-                timestamp__date=today
-            ).exists() else None).exists():
+            if is_unique_visitor:
                 daily_visits.unique_visitors = F('unique_visitors') + 1
             
             daily_visits.save()
