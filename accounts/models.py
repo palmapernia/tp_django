@@ -11,6 +11,7 @@ class PageView(models.Model):
     user_agent = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     session_key = models.CharField(max_length=40, blank=True)
+    visitor_id = models.CharField(max_length=36, blank=True, help_text="UUID único por visitante")
     
     class Meta:
         ordering = ['-timestamp']

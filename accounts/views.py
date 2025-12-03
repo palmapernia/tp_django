@@ -72,11 +72,11 @@ def dashboard_view(request):
         today = timezone.now().date()
         today_visits = PageView.objects.filter(timestamp__date=today).count()
         
-        # Visitantes únicos (últimos 30 días)
+        # Visitantes únicos (últimos 30 días) - ahora por visitor_id
         thirty_days_ago = today - timedelta(days=30)
         unique_visitors = PageView.objects.filter(
             timestamp__date__gte=thirty_days_ago
-        ).values('ip_address').distinct().count()
+        ).values('visitor_id').distinct().count()
         
         context.update({
             'total_users': total_users,
