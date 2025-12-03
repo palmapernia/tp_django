@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-poll me-2"></i>{{ title }}</h2>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Retour au Dashboard
+                </a>
+            </div>
+            
+            {% if polls %}
+                <div class="row g-4">
+                    {% for poll in polls %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 poll-card border-0 shadow-lg overflow-hidden">
+                            <div class="poll-header">
+                                <div class="poll-icon">
+                                    <i class="fas fa-poll-h"></i>
+                                </div>
+                                {% if poll.is_active %}
+                                <span class="badge badge-active">Actif</span>
+                                {% else %}
+                                <span class="badge badge-inactive">Inactif</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title fw-bold mb-3 text-dark">{{ poll.question_text }}</h5>
+                                <div class="poll-stats mb-4">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                            <i class="fas fa-calendar me-1 text-success"></i>{{ poll.pub_date|date:"d/m/Y" }}
+                                        </span>
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                            <i class="fas fa-list me-1"></i>{{ poll.choice_set.count }} choix
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-auto">
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'polls:detail' poll.id %}?from=my-polls" class="btn btn-gradient-success">
+                                            <i class="fas fa-eye me-2"></i>Voir les détails
+                                        </a>
+                                        <a href="{% url 'polls:results' poll.id %}?from=my-polls" class="btn btn-outline-primary">
+                                            <i class="fas fa-chart-pie me-2"></i>Voir les résultats
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state-container">
+                        <div class="empty-state-icon-polls mb-4">
+                            <i class="fas fa-poll"></i>
+                        </div>
+                        <h4 class="empty-state-title">Aucun sondage</h4>
+                        <p class="empty-state-text mb-4">Vous n'avez pas encore créé de sondages. Lancez votre première enquête!</p>
+                        <a href="/polls/" class="btn btn-gradient-success btn-lg px-4 py-2">
+                            <i class="fas fa-plus me-2"></i>Créer mon premier sondage
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.poll-card {
+    transition: all 0.4s ease;
+    border-radius: 20px;
+    background: white;
+}
+.poll-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.poll-header {
+    height: 120px;
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    position: relative;
+}
+.poll-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+.poll-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+.badge-active {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.badge-inactive {
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.poll-stats {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+}
+.btn-gradient-success {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(132, 250, 176, 0.4);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+}
+.btn-gradient-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(132, 250, 176, 0.6);
+    color: white;
+}
+.btn-outline-primary {
+    border: 2px solid #667eea;
+    color: #667eea;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+.btn-outline-primary:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+.empty-state-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+.empty-state-icon-polls {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+.empty-state-icon-polls i {
+    font-size: 3rem;
+    color: white;
+}
+.empty-state-title {
+    color: #2d3748;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.empty-state-text {
+    color: #718096;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+.btn-gradient-success {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(132, 250, 176, 0.4);
+}
+.btn-gradient-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(132, 250, 176, 0.6);
+    color: white;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-newspaper me-2"></i>{{ title }}</h2>
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Retour au Dashboard
+                </a>
+            </div>
+            
+            {% if articles %}
+                <div class="row g-4">
+                    {% for article in articles %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 article-card border-0 shadow-lg overflow-hidden">
+                            <div class="position-relative">
+                                {% if article.image %}
+                                <img src="{{ article.image.url }}" class="card-img-top article-image" alt="{{ article.title }}">
+                                <div class="image-overlay"></div>
+                                {% else %}
+                                <div class="card-img-top article-placeholder d-flex align-items-center justify-content-center">
+                                    <div class="text-center text-white">
+                                        <i class="fas fa-newspaper" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                                        <p class="mb-0 fw-bold">Article</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title fw-bold mb-3 text-dark">{{ article.title }}</h5>
+                                <p class="card-text text-muted flex-grow-1 mb-4" style="line-height: 1.6;">{{ article.summary|truncatewords:15 }}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                            <i class="fas fa-calendar me-1 text-primary"></i>{{ article.created_at|date:"d/m/Y" }}
+                                        </span>
+                                        <span class="badge bg-info text-white px-3 py-2 rounded-pill">
+                                            <i class="fas fa-comments me-1"></i>{{ article.comments.count }} commentaire{{ article.comments.count|pluralize }}
+                                        </span>
+                                    </div>
+                                    <a href="{% url 'blog:article_detail' article.id %}?from=my-articles" class="btn btn-gradient-primary w-100 py-2 fw-semibold">
+                                        <i class="fas fa-eye me-2"></i>Lire l'article
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state-container">
+                        <div class="empty-state-icon mb-4">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h4 class="empty-state-title">Aucun article</h4>
+                        <p class="empty-state-text mb-4">Vous n'avez pas encore créé d'articles. Commencez à partager vos idées!</p>
+                        <a href="/" class="btn btn-gradient-primary btn-lg px-4 py-2">
+                            <i class="fas fa-plus me-2"></i>Créer mon premier article
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.article-card {
+    transition: all 0.4s ease;
+    border-radius: 20px;
+}
+.article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.article-image {
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.article-card:hover .article-image {
+    transform: scale(1.05);
+}
+.article-placeholder {
+    height: 220px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.article-card:hover .image-overlay {
+    opacity: 1;
+}
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+.btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    color: white;
+}
+.empty-state-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+.empty-state-icon i {
+    font-size: 3rem;
+    color: white;
+}
+.empty-state-title {
+    color: #2d3748;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.empty-state-text {
+    color: #718096;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+</style>
+{% endblock %}

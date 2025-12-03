@@ -13,6 +13,11 @@ class Article(models.Model):
     def __str__(self):
         return self.title
     
+    @property
+    def summary(self):
+        """Retourne un résumé de l'article basé sur le contenu"""
+        return self.content[:150] + "..." if len(self.content) > 150 else self.content
+    
 class Comment(models.Model):
     article = models.ForeignKey(Article, related_name='comments', on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)

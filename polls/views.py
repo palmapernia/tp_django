@@ -123,7 +123,22 @@ def edit_poll(request, question_id):
                         choice_text=choice_text.strip()
                     )
             
-            return redirect('polls:detail', question.id)
+            # Detectar desde dónde viene y mantener el parámetro 'from'
+            from_param = request.GET.get('from')
+            referer = request.META.get('HTTP_REFERER', '')
+            
+            if 'results' in referer:
+                # Viene desde results, regresar a results
+                if from_param:
+                    return redirect(f"{reverse('polls:results', args=[question.id])}?from={from_param}")
+                else:
+                    return redirect('polls:results', question.id)
+            else:
+                # Viene desde detail, regresar a detail
+                if from_param:
+                    return redirect(f"{reverse('polls:detail', args=[question.id])}?from={from_param}")
+                else:
+                    return redirect('polls:detail', question.id)
     else:
         question_form = QuestionForm(instance=question)
     
@@ -142,8 +157,25 @@ def toggle_poll_status(request, question_id):
     if question.author == request.user:
         question.is_active = not question.is_active
         question.save()
+        
+        # Detectar desde dónde viene y mantener el parámetro 'from'
+        from_param = request.GET.get('from')
+        referer = request.META.get('HTTP_REFERER', '')
+        
+        if 'results' in referer:
+            # Viene desde results, regresar a results
+            if from_param:
+                return redirect(f"{reverse('polls:results', args=[question.id])}?from={from_param}")
+            else:
+                return redirect('polls:results', question.id)
+        else:
+            # Viene desde detail, regresar a detail
+            if from_param:
+                return redirect(f"{reverse('polls:detail', args=[question.id])}?from={from_param}")
+            else:
+                return redirect('polls:detail', question.id)
     
-    return redirect('polls:index')
+    return redirect('polls:detail', question.id)
 
 
 @login_required

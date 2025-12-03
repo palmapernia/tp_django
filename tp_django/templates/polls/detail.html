@@ -27,12 +27,12 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'polls:edit_poll' question.id %}">
+                                    <a class="dropdown-item" href="{% url 'polls:edit_poll' question.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}">
                                         <i class="fas fa-edit me-2 text-warning"></i>Modifier
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'polls:toggle_poll' question.id %}">
+                                    <a class="dropdown-item" href="{% url 'polls:toggle_poll' question.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}">
                                         {% if question.is_active %}
                                         <i class="fas fa-pause me-2 text-warning"></i>Désactiver
                                         {% else %}
@@ -102,10 +102,16 @@
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="d-flex gap-2">
-                                <a href="{% url 'polls:index' %}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-arrow-left me-1"></i>Retour aux sondages
-                                </a>
-                                <a href="{% url 'polls:results' question.id %}" class="btn btn-outline-info">
+                                {% if request.GET.from == 'my-polls' %}
+                                    <a href="{% url 'accounts:my_polls' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Retour à mes sondages
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'polls:index' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>Retour aux sondages
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'polls:results' question.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}" class="btn btn-outline-info">
                                     <i class="fas fa-chart-bar me-1"></i>Voir les résultats
                                 </a>
                             </div>
